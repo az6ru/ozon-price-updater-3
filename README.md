@@ -1,62 +1,126 @@
 # Ozon Price Updater 3.0
 
-Система для автоматического управления ценами на Ozon.
+Система для мониторинга и обновления цен товаров на Ozon.
 
-## Возможности
+## Описание
 
-- Автоматический мониторинг цен конкурентов
-- Автоматическое обновление цен по заданным правилам
-- Управление минимальными ценами и наценками
-- Поддержка массового обновления цен
-- Веб-интерфейс для управления настройками
+Ozon Price Updater - это приложение, которое позволяет автоматизировать процесс мониторинга и обновления цен товаров на Ozon. Система отслеживает изменения цен конкурентов, позволяет устанавливать правила для автоматического обновления цен и предоставляет удобный интерфейс для контроля за процессом.
 
-## Технологии
+## Основные возможности
 
-- Backend: FastAPI, SQLAlchemy, Pydantic
-- Frontend: Nuxt.js 3, Vue.js 3, Tailwind CSS
-- База данных: SQLite
+- Мониторинг цен товаров на Ozon
+- Автоматическое обновление цен на основе заданных правил
+- Отслеживание МРПЦ (минимальной рекомендованной цены)
+- Проверка соответствия цен требованиям Ozon
+- Ведение истории изменения цен
+- Логирование API запросов
+- Управление пользователями с разными уровнями доступа
+
+## Структура проекта
+
+Проект состоит из двух основных частей:
+
+- `backend/` - Серверная часть на FastAPI (Python)
+- `frontend/` - Клиентская часть на Nuxt.js 3 (Vue 3 + TypeScript)
+
+## Требования
+
+### Для backend:
+
+- Python 3.9+
+- FastAPI
+- SQLAlchemy
+- Pydantic
+- HTTPX
+- APScheduler
+- Другие зависимости (см. requirements.txt)
+
+### Для frontend:
+
+- Node.js 16+
+- Nuxt.js 3
+- Vue.js 3
+- TypeScript
+- TailwindCSS
+- Pinia
+- ApexCharts
 
 ## Установка и запуск
 
-1. Клонируйте репозиторий:
-```bash
-git clone https://github.com/az6ru/ozon-price-updater-3.git
-cd ozon-price-updater-3
-```
+### Backend
 
-2. Создайте файл .env и заполните его необходимыми переменными:
-```env
-OZON_CLIENT_ID=your_client_id
-OZON_API_KEY=your_api_key
-DATABASE_URL=sqlite:///./app.db
-SECRET_KEY=your_secret_key
-```
+1. Перейдите в директорию backend:
+   ```bash
+   cd backend
+   ```
 
-3. Запустите backend:
-```bash
-cd backend
-python -m venv venv
-source venv/bin/activate  # для Linux/Mac
-# или
-venv\Scripts\activate  # для Windows
-pip install -r requirements.txt
-uvicorn app.main:app --reload
-```
+2. Создайте виртуальное окружение:
+   ```bash
+   python -m venv venv
+   ```
 
-4. Запустите frontend:
-```bash
-cd frontend
-npm install
-npm run dev
-```
+3. Активируйте виртуальное окружение:
+   - На Windows:
+     ```bash
+     venv\Scripts\activate
+     ```
+   - На Unix или MacOS:
+     ```bash
+     source venv/bin/activate
+     ```
 
-5. Откройте http://localhost:3000 в браузере
+4. Установите зависимости:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-## Учетные данные по умолчанию
+5. Запустите сервер:
+   ```bash
+   python run.py
+   ```
 
-- Логин: admin
-- Пароль: admin123!
+### Frontend
+
+1. Перейдите в директорию frontend:
+   ```bash
+   cd frontend
+   ```
+
+2. Установите зависимости:
+   ```bash
+   npm install
+   ```
+
+3. Запустите сервер для разработки:
+   ```bash
+   npm run dev
+   ```
+
+4. Для сборки production версии:
+   ```bash
+   npm run build
+   ```
+
+## Конфигурация
+
+### Backend
+
+Основные настройки хранятся в файле конфигурации `backend/app/core/config.py`:
+
+- `MONITORING_INTERVAL` - интервал мониторинга цен (в минутах)
+- `PRICE_UPDATE_INTERVAL` - интервал обновления цен (в минутах)
+- `OZON_CLIENT_ID` - ID клиента для API Ozon
+- `OZON_API_KEY` - ключ API для доступа к API Ozon
+- `FRONT_PRICE_API_URL` - URL для доступа к API Front Price
+
+### Frontend
+
+Настройки frontend хранятся в `frontend/nuxt.config.ts`.
+
+## API Документация
+
+После запуска backend, документация API доступна по адресу: `http://localhost:8000/docs`
 
 ## Лицензия
 
-MIT 
+MIT License 

@@ -20,9 +20,9 @@ wheels/
 .installed.cfg
 *.egg
 MANIFEST
-.env
 venv/
-.venv/
+.env
+*.log
 *.db
 
 # Node.js
@@ -31,8 +31,9 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .nuxt/
-.output/
+.next/
 dist/
+.cache/
 
 # IDE
 .idea/
@@ -40,10 +41,11 @@ dist/
 *.swp
 *.swo
 
-# Logs
-logs/
-*.log
-
-# System
+# OS
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db 

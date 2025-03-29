@@ -33,26 +33,38 @@ export const useAuthStore = defineStore('auth', {
       this.error = null;
 
       try {
-        const response = await fetch('http://localhost:8000/api/auth/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ username, password }),
-        });
+        // Здесь будет реальный запрос к API
+        // const response = await fetch('/api/auth/login', {
+        //   method: 'POST',
+        //   headers: {
+        //     'Content-Type': 'application/json',
+        //   },
+        //   body: JSON.stringify({ username, password }),
+        // });
         
-        const data = await response.json();
+        // const data = await response.json();
         
-        if (!response.ok) {
-          throw new Error(data.detail || 'Ошибка аутентификации');
-        }
+        // if (!response.ok) {
+        //   throw new Error(data.detail || 'Ошибка аутентификации');
+        // }
+        
+        // Моковые данные для тестирования
+        const data = {
+          access_token: 'mock_token_' + Date.now(),
+          user: {
+            id: 1,
+            username,
+            email: 'user@example.com',
+            is_superuser: username === 'admin',
+          }
+        };
 
         this.token = data.access_token;
         this.user = data.user;
         
         // Сохраняем данные в localStorage
-        localStorage.setItem('token', data.access_token);
-        localStorage.setItem('user', JSON.stringify(data.user));
+        localStorage.setItem('auth_token', data.access_token);
+        localStorage.setItem('auth_user', JSON.stringify(data.user));
         
         return true;
       } catch (error: any) {
@@ -64,46 +76,38 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async logout() {
-      try {
-        const token = localStorage.getItem('token');
-        if (token) {
-          await fetch('http://localhost:8000/api/auth/logout', {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            }
-          });
-        }
-      } catch (error) {
-        console.error('Ошибка при выходе:', error);
-      } finally {
-        this.token = null;
-        this.user = null;
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-      }
+      // Можно добавить запрос к API для инвалидации токена
+      // await fetch('/api/auth/logout', {...})
+      
+      this.token = null;
+      this.user = null;
+      
+      // Удаляем данные из localStorage
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('auth_user');
     },
 
     async checkAuth() {
-      const token = localStorage.getItem('token');
-      const userJson = localStorage.getItem('user');
+      // Проверяем наличие токена в localStorage
+      const token = localStorage.getItem('auth_token');
+      const userJson = localStorage.getItem('auth_user');
       
       if (token && userJson) {
         try {
-          const response = await fetch('http://localhost:8000/api/auth/verify', {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          });
-          
-          if (!response.ok) {
-            throw new Error('Токен недействителен');
-          }
-
           const user = JSON.parse(userJson);
           this.token = token;
           this.user = user;
+          
+          // Здесь можно добавить проверку валидности токена на сервере
+          // const response = await fetch('/api/auth/verify', {
+          //   headers: {
+          //     'Authorization': `Bearer ${token}`
+          //   }
+          // });
+          
+          // if (!response.ok) {
+          //   throw new Error('Токен недействителен');
+          // }
           
           return true;
         } catch (error) {

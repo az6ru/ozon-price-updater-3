@@ -17,8 +17,6 @@ from app.api.api import api_router
 from app.tasks.monitor_products import monitor_products
 from app.tasks.maintain_mrpc_prices import maintain_mrpc_prices
 from app.tasks.verify_price_changes import verify_price_changes
-from app.db.session import SessionLocal
-from app.core.init_db import init_db
 
 # Настройка логирования
 logging.basicConfig(
@@ -76,8 +74,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.VERSION,
-    lifespan=lifespan,
-    openapi_url=f"{settings.API_V1_STR}/openapi.json"
+    lifespan=lifespan
 )
 
 # Настройка CORS
@@ -136,16 +133,6 @@ async def check_status() -> dict:
         "status": "ok",
         "version": settings.VERSION,
     }
-
-
-@app.on_event("startup")
-async def startup_event():
-    """Инициализация при запуске приложения"""
-    db = SessionLocal()
-    try:
-        init_db(db)
-    finally:
-        db.close()
 
 
 if __name__ == "__main__":

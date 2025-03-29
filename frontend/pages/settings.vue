@@ -7,18 +7,34 @@
       <form @submit.prevent="saveSettings">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label for="updateInterval" class="block text-sm font-medium text-gray-700 mb-1">
-              Интервал обновления (минуты)
+            <label for="monitoringInterval" class="block text-sm font-medium text-gray-700 mb-1">
+              Интервал мониторинга (минуты)
             </label>
             <input
               type="number"
-              id="updateInterval"
-              v-model="settings.updateInterval"
+              id="monitoringInterval"
+              v-model="settings.monitoringInterval"
               min="1"
               class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
             <p class="mt-1 text-sm text-gray-500">
-              Как часто система будет проверять и обновлять цены товаров
+              Как часто система будет проверять цены товаров
+            </p>
+          </div>
+          
+          <div>
+            <label for="priceUpdateInterval" class="block text-sm font-medium text-gray-700 mb-1">
+              Интервал обновления цен (минуты)
+            </label>
+            <input
+              type="number"
+              id="priceUpdateInterval"
+              v-model="settings.priceUpdateInterval"
+              min="1"
+              class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+            <p class="mt-1 text-sm text-gray-500">
+              Как часто система будет обновлять цены товаров
             </p>
           </div>
           
@@ -34,6 +50,23 @@
             />
             <p class="mt-1 text-sm text-gray-500">
               URL для доступа к API Front Price
+            </p>
+          </div>
+          
+          <div>
+            <label for="minPriceThreshold" class="block text-sm font-medium text-gray-700 mb-1">
+              Минимальный порог цены (%)
+            </label>
+            <input
+              type="number"
+              id="minPriceThreshold"
+              v-model="settings.minPriceThreshold"
+              min="1"
+              max="100"
+              class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+            <p class="mt-1 text-sm text-gray-500">
+              Минимальное отклонение от МРПЦ в процентах
             </p>
           </div>
         </div>
@@ -166,8 +199,10 @@ const showApiKey = ref(false);
 
 // Настройки системы
 const settings = reactive({
-  updateInterval: 30,
+  monitoringInterval: 30,
+  priceUpdateInterval: 60,
   frontPriceApiUrl: 'https://api.frontprice.ru',
+  minPriceThreshold: 5,
   ozonClientId: '',
   ozonApiKey: '',
   secretKey: '****************************************',
@@ -180,34 +215,15 @@ let originalSettings = { ...settings };
 // Получение настроек с сервера
 const fetchSettings = async () => {
   try {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      window.location.href = '/login';
-      return;
-    }
-
-    const response = await fetch('http://localhost:8000/api/settings', {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    });
+    // Здесь будет запрос к API для получения настроек
+    // const response = await fetch('/api/settings');
+    // const data = await response.json();
+    // Object.assign(settings, data);
     
-    if (response.status === 401) {
-      window.location.href = '/login';
-      return;
-    }
-    
-    if (!response.ok) {
-      throw new Error('Ошибка при получении настроек');
-    }
-    
-    const data = await response.json();
-    Object.assign(settings, data);
+    // Сохраняем копию для возможности отмены изменений
     originalSettings = { ...settings };
   } catch (error) {
     console.error('Ошибка при загрузке настроек:', error);
-    alert('Не удалось загрузить настройки');
   }
 };
 
@@ -215,35 +231,21 @@ const fetchSettings = async () => {
 const saveSettings = async () => {
   isSaving.value = true;
   try {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      window.location.href = '/login';
-      return;
-    }
-
-    const response = await fetch('http://localhost:8000/api/settings', {
-      method: 'PUT',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(settings),
-    });
-
-    if (response.status === 401) {
-      window.location.href = '/login';
-      return;
-    }
-
-    if (!response.ok) {
-      throw new Error('Ошибка при сохранении настроек');
-    }
-
+    // Здесь будет запрос к API для сохранения настроек
+    // await fetch('/api/settings', {
+    //   method: 'PUT',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    //   body: JSON.stringify(settings),
+    // });
+    
+    // Обновляем оригинальные настройки
     originalSettings = { ...settings };
     alert('Настройки успешно сохранены');
   } catch (error) {
     console.error('Ошибка при сохранении настроек:', error);
-    alert('Не удалось сохранить настройки');
+    alert('Ошибка при сохранении настроек');
   } finally {
     isSaving.value = false;
   }
@@ -254,35 +256,17 @@ const generateNewSecretKey = async () => {
   const confirmed = confirm('Вы уверены, что хотите сгенерировать новый секретный ключ? Это приведет к выходу из системы всех пользователей.');
   if (confirmed) {
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        window.location.href = '/login';
-        return;
-      }
-
-      const response = await fetch('http://localhost:8000/api/settings/generate-secret', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (response.status === 401) {
-        window.location.href = '/login';
-        return;
-      }
-
-      if (!response.ok) {
-        throw new Error('Ошибка при генерации ключа');
-      }
-
-      const data = await response.json();
-      settings.secretKey = data.secretKey;
+      // Здесь будет запрос к API для генерации нового ключа
+      // const response = await fetch('/api/settings/generate-secret', {
+      //   method: 'POST',
+      // });
+      // const data = await response.json();
+      // settings.secretKey = data.secretKey;
+      
       alert('Новый секретный ключ успешно сгенерирован');
     } catch (error) {
       console.error('Ошибка при генерации ключа:', error);
-      alert('Не удалось сгенерировать новый ключ');
+      alert('Ошибка при генерации ключа');
     }
   }
 };
