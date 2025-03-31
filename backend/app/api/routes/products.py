@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_
 import math
 from datetime import datetime
+import logging
 
 from app.db.database import get_db
 from app.db.models import SkuMonitoring, User
@@ -28,6 +29,8 @@ from app.core.config import settings
 
 router = APIRouter()
 
+logger = logging.getLogger(__name__)
+
 
 @router.get("", response_model=PaginatedResponse)
 async def get_products(
@@ -42,41 +45,76 @@ async def get_products(
     """
     Получение списка товаров с пагинацией и фильтрацией
     """
-    # Базовый запрос
-    query = db.query(SkuMonitoring)
-    
-    # Применяем фильтры
-    if active is not None:
-        query = query.filter(SkuMonitoring.active == active)
-    
-    if has_stock is not None:
-        query = query.filter(SkuMonitoring.available == has_stock)
-    
-    if search:
-        query = query.filter(
-            or_(
-                SkuMonitoring.name.ilike(f"%{search}%"),
-                SkuMonitoring.sku.ilike(f"%{search}%"),
-                SkuMonitoring.product_id.ilike(f"%{search}%")
+    try:
+        logger.info("Получение списка товаров с параметрами: page=%s, per_page=%s, active=%s, has_stock=%s, search=%s",
+                   page, per_page, active, has_stock, search)
+        
+        # Базовый запрос
+        query = db.query(SkuMonitoring)
+        
+        # Применяем фильтры
+        if active is not None:
+            query = query.filter(SkuMonitoring.active == active)
+        
+        if has_stock is not None:
+            query = query.filter(SkuMonitoring.available == has_stock)
+        
+        if search:
+            query = query.filter(
+                or_(
+                    SkuMonitoring.name.ilike(f"%{search}%"),
+                    SkuMonitoring.sku.ilike(f"%{search}%"),
+                    SkuMonitoring.product_id.ilike(f"%{search}%")
+                )
             )
+        
+        # Получаем общее количество товаров
+        total_items = query.count()
+        logger.debug("Найдено товаров: %s", total_items)
+        
+        # Рассчитываем пагинацию
+        total_pages = math.ceil(total_items / per_page)
+        offset = (page - 1) * per_page
+        
+        # Получаем товары для текущей страницы
+        items = query.offset(offset).limit(per_page).all()
+        logger.debug("Получено товаров для страницы: %s", len(items))
+        
+        # Преобразуем объекты SQLAlchemy в словари для корректной сериализации
+        serialized_items = [
+            {
+                "id": item.id,
+                "product_id": item.product_id,
+                "sku": item.sku,
+                "name": item.name,
+                "active": item.active,
+                "available": item.available,
+                "price": item.price,
+                "marketing_price": item.marketing_price,
+                "min_price": item.min_price,
+                "old_price": item.old_price,
+                "front_price": item.front_price,
+                "mrpc": item.mrpc,
+                "discount": item.discount,
+                "product_url": item.product_url,
+                "front_price_timestamp": item.front_price_timestamp,
+                "update_timestamp": item.update_timestamp
+            }
+            for item in items
+        ]
+        
+        return {
+            "items": serialized_items,
+            "total": total_items,
+            "page": page,
+            "pages": total_pages
+        }
+    except Exception as e:
+        logger.error("Ошибка при получении списка товаров: %s", str(e), exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Ошибка при получении списка товаров: {str(e)}"
         )
-    
-    # Получаем общее количество товаров
-    total_items = query.count()
-    
-    # Рассчитываем пагинацию
-    total_pages = math.ceil(total_items / per_page)
-    offset = (page - 1) * per_page
-    
-    # Получаем товары для текущей страницы
-    items = query.offset(offset).limit(per_page).all()
-    
-    return {
-        "items": items,
-        "total": total_items,
-        "page": page,
-        "pages": total_pages
-    }
 
 
 @router.get("/fetch", response_model=dict)
@@ -485,4 +523,25 @@ async def update_prices(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error updating prices: {str(e)}"
+        )
+
+
+@router.post("/monitor", response_model=dict)
+async def monitor_products_endpoint(
+    db: Session = Depends(get_db),
+    _: User = Depends(get_current_active_user)
+) -> Any:
+    """
+    Ручной запуск мониторинга товаров
+    """
+    try:
+        await monitor_products()
+        return {
+            "status": "success",
+            "message": "Мониторинг товаров успешно запущен"
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Ошибка при запуске мониторинга: {str(e)}"
         ) 

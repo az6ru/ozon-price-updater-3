@@ -39,14 +39,23 @@ async def map_ozon_product_to_model(product_data: Dict) -> Dict:
     if "stocks" in product_data and "has_stock" in product_data["stocks"]:
         has_stock = product_data["stocks"]["has_stock"]
     
+    # Безопасное преобразование цен
+    def safe_float(value, default=0.0):
+        if not value or value == "":
+            return default
+        try:
+            return float(value)
+        except (ValueError, TypeError):
+            return default
+    
     # Цены
-    marketing_price = float(product_data.get("marketing_price", 0))
-    min_price = float(product_data.get("min_price", 0))
-    old_price = float(product_data.get("old_price", 0))
-    price = float(product_data.get("price", 0))
+    marketing_price = safe_float(product_data.get("marketing_price"))
+    min_price = safe_float(product_data.get("min_price"))
+    old_price = safe_float(product_data.get("old_price"))
+    price = safe_float(product_data.get("price"))
     
     # Формирование URL товара
-    product_url = f"https://www.ozon.ru/product/{product_id}"
+    product_url = f"https://www.ozon.ru/product/{sku}" if sku else None
     
     return {
         "product_id": product_id,

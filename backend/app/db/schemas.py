@@ -243,4 +243,7 @@ class PaginatedResponse(BaseModel):
     items: List[Any]
     total: int
     page: int
-    pages: int 
+    pages: int
+
+    class Config:
+        from_attributes = True 

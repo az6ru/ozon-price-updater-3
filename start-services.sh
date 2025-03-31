@@ -89,11 +89,11 @@ start_frontend() {
     # Проверка установленных зависимостей
     if [ ! -d "node_modules" ]; then
         echo -e "Устанавливаю зависимости фронтенда..."
-        npm install --force
+        npm install
     fi
     
     # Запуск фронтенда в фоновом режиме
-    echo -e "Запуск сервера Nuxt..."
+    echo -e "Запуск сервера Next.js..."
     npm run dev > frontend.log 2>&1 &
     
     # Проверка запуска (даем немного времени на инициализацию)

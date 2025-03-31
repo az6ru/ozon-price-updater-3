@@ -12,11 +12,12 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from app.core.config import settings
-from app.db.database import Base, engine
+from app.db.database import Base, engine, SessionLocal
 from app.api.api import api_router
 from app.tasks.monitor_products import monitor_products
 from app.tasks.maintain_mrpc_prices import maintain_mrpc_prices
 from app.tasks.verify_price_changes import verify_price_changes
+from app.db.init_db import init_db
 
 # Настройка логирования
 logging.basicConfig(
@@ -36,6 +37,13 @@ async def lifespan(app: FastAPI):
     """
     # Инициализация базы данных
     Base.metadata.create_all(bind=engine)
+    
+    # Инициализация первого пользователя
+    db = SessionLocal()
+    try:
+        init_db(db)
+    finally:
+        db.close()
     
     # Настройка задач планировщика
     scheduler.add_job(
@@ -74,13 +82,14 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.VERSION,
-    lifespan=lifespan
+    lifespan=lifespan,
+    openapi_url=f"{settings.API_V1_STR}/openapi.json"
 )
 
 # Настройка CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # В продакшене следует указать конкретные домены
+    allow_origins=["http://localhost:3000", "http://localhost:3001"],  # Домены фронтенда
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -133,6 +142,21 @@ async def check_status() -> dict:
         "status": "ok",
         "version": settings.VERSION,
     }
+
+
+# Инициализация базы данных при запуске
+@app.on_event("startup")
+async def startup_event():
+    try:
+        logger.info("Инициализация базы данных...")
+        db = SessionLocal()
+        try:
+            init_db(db)
+        finally:
+            db.close()
+    except Exception as e:
+        logger.error(f"Ошибка при инициализации базы данных: {str(e)}", exc_info=True)
+        raise
 
 
 if __name__ == "__main__":
