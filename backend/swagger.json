@@ -1,0 +1,1725 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+      "title": "Ozone Price Updater",
+      "version": "3.0.0"
+    },
+    "paths": {
+      "/api/auth/login": {
+        "post": {
+          "tags": [
+            "auth"
+          ],
+          "summary": "Login Access Token",
+          "description": "Получение токена доступа OAuth2 для авторизации",
+          "operationId": "login_access_token_api_auth_login_post",
+          "requestBody": {
+            "content": {
+              "application/x-www-form-urlencoded": {
+                "schema": {
+                  "$ref": "#/components/schemas/Body_login_access_token_api_auth_login_post"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Token"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/auth/register": {
+        "post": {
+          "tags": [
+            "auth"
+          ],
+          "summary": "Register User",
+          "description": "Регистрация нового пользователя",
+          "operationId": "register_user_api_auth_register_post",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserCreate"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/User"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/auth/me": {
+        "get": {
+          "tags": [
+            "auth"
+          ],
+          "summary": "Read Users Me",
+          "description": "Получение информации о текущем пользователе",
+          "operationId": "read_users_me_api_auth_me_get",
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/User"
+                  }
+                }
+              }
+            }
+          },
+          "security": [
+            {
+              "OAuth2PasswordBearer": []
+            }
+          ]
+        }
+      },
+      "/api/users/me": {
+        "get": {
+          "tags": [
+            "users"
+          ],
+          "summary": "Read Current User",
+          "description": "Получение информации о текущем пользователе",
+          "operationId": "read_current_user_api_users_me_get",
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/User"
+                  }
+                }
+              }
+            }
+          },
+          "security": [
+            {
+              "OAuth2PasswordBearer": []
+            }
+          ]
+        }
+      },
+      "/api/users/{user_id}": {
+        "get": {
+          "tags": [
+            "users"
+          ],
+          "summary": "Read User",
+          "description": "Получение информации о пользователе по ID",
+          "operationId": "read_user_api_users__user_id__get",
+          "security": [
+            {
+              "OAuth2PasswordBearer": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "user_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "title": "User Id"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/User"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/products": {
+        "get": {
+          "tags": [
+            "products"
+          ],
+          "summary": "Get Products",
+          "description": "Получение списка товаров с пагинацией и фильтрацией",
+          "operationId": "get_products_api_products_get",
+          "security": [
+            {
+              "OAuth2PasswordBearer": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "page",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "minimum": 1,
+                "default": 1,
+                "title": "Page"
+              }
+            },
+            {
+              "name": "per_page",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "maximum": 100,
+                "minimum": 1,
+                "default": 50,
+                "title": "Per Page"
+              }
+            },
+            {
+              "name": "active",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Active"
+              }
+            },
+            {
+              "name": "has_stock",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Has Stock"
+              }
+            },
+            {
+              "name": "search",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Search"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PaginatedResponse"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/products/fetch": {
+        "get": {
+          "tags": [
+            "products"
+          ],
+          "summary": "Fetch Products",
+          "description": "Ручное получение данных о товарах из Ozon API",
+          "operationId": "fetch_products_api_products_fetch_get",
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "additionalProperties": true,
+                    "type": "object",
+                    "title": "Response Fetch Products Api Products Fetch Get"
+                  }
+                }
+              }
+            }
+          },
+          "security": [
+            {
+              "OAuth2PasswordBearer": []
+            }
+          ]
+        }
+      },
+      "/api/products/fetch-prices": {
+        "post": {
+          "tags": [
+            "products"
+          ],
+          "summary": "Fetch Front Prices",
+          "description": "Ручное получение цен товаров с витрины Ozon",
+          "operationId": "fetch_front_prices_api_products_fetch_prices_post",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/UpdatePricesRequest"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Request"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "additionalProperties": true,
+                    "type": "object",
+                    "title": "Response Fetch Front Prices Api Products Fetch Prices Post"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          },
+          "security": [
+            {
+              "OAuth2PasswordBearer": []
+            }
+          ]
+        }
+      },
+      "/api/products/set-mrpc": {
+        "post": {
+          "tags": [
+            "products"
+          ],
+          "summary": "Set Mrpc",
+          "description": "Установка МРЦ для товаров",
+          "operationId": "set_mrpc_api_products_set_mrpc_post",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/MrpcUpdate"
+                  },
+                  "type": "array",
+                  "title": "Items"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/MrpcUpdateBatchResponse"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          },
+          "security": [
+            {
+              "OAuth2PasswordBearer": []
+            }
+          ]
+        }
+      },
+      "/api/products/set-discount": {
+        "post": {
+          "tags": [
+            "products"
+          ],
+          "summary": "Set Discount",
+          "description": "Установка скидок для товаров",
+          "operationId": "set_discount_api_products_set_discount_post",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/DiscountUpdate"
+                  },
+                  "type": "array",
+                  "title": "Items"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/DiscountUpdateBatchResponse"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          },
+          "security": [
+            {
+              "OAuth2PasswordBearer": []
+            }
+          ]
+        }
+      },
+      "/api/products/{product_id}/activate": {
+        "post": {
+          "tags": [
+            "products"
+          ],
+          "summary": "Activate Product",
+          "description": "Активация мониторинга товара",
+          "operationId": "activate_product_api_products__product_id__activate_post",
+          "security": [
+            {
+              "OAuth2PasswordBearer": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "product_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "title": "Product Id"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "additionalProperties": true,
+                    "title": "Response Activate Product Api Products Product Id Activate Post"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/products/{product_id}/deactivate": {
+        "post": {
+          "tags": [
+            "products"
+          ],
+          "summary": "Deactivate Product",
+          "description": "Деактивация мониторинга товара",
+          "operationId": "deactivate_product_api_products__product_id__deactivate_post",
+          "security": [
+            {
+              "OAuth2PasswordBearer": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "product_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "title": "Product Id"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "additionalProperties": true,
+                    "title": "Response Deactivate Product Api Products Product Id Deactivate Post"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/products/{product_id}": {
+        "put": {
+          "tags": [
+            "products"
+          ],
+          "summary": "Update Product",
+          "description": "Обновление параметров товара",
+          "operationId": "update_product_api_products__product_id__put",
+          "security": [
+            {
+              "OAuth2PasswordBearer": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "product_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "title": "Product Id"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductUpdate"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "additionalProperties": true,
+                    "title": "Response Update Product Api Products Product Id Put"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/products/update-prices": {
+        "post": {
+          "tags": [
+            "products"
+          ],
+          "summary": "Update Prices",
+          "description": "Принудительное обновление цен товаров",
+          "operationId": "update_prices_api_products_update_prices_post",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/UpdatePricesRequest"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Request"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/UpdatePricesResponse"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          },
+          "security": [
+            {
+              "OAuth2PasswordBearer": []
+            }
+          ]
+        }
+      },
+      "/api/price-history": {
+        "get": {
+          "tags": [
+            "price-history"
+          ],
+          "summary": "Get Price History",
+          "description": "Получение истории изменения цен с фильтрацией и пагинацией",
+          "operationId": "get_price_history_api_price_history_get",
+          "security": [
+            {
+              "OAuth2PasswordBearer": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "product_id",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Product Id"
+              }
+            },
+            {
+              "name": "start_date",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Start Date"
+              }
+            },
+            {
+              "name": "end_date",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "End Date"
+              }
+            },
+            {
+              "name": "page",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "minimum": 1,
+                "default": 1,
+                "title": "Page"
+              }
+            },
+            {
+              "name": "per_page",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "maximum": 100,
+                "minimum": 1,
+                "default": 50,
+                "title": "Per Page"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PaginatedResponse"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/api-logs": {
+        "get": {
+          "tags": [
+            "api-logs"
+          ],
+          "summary": "Get Api Logs",
+          "description": "Получение логов API с фильтрацией и пагинацией",
+          "operationId": "get_api_logs_api_api_logs_get",
+          "security": [
+            {
+              "OAuth2PasswordBearer": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "start_date",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Start Date"
+              }
+            },
+            {
+              "name": "end_date",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "End Date"
+              }
+            },
+            {
+              "name": "success",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Success"
+              }
+            },
+            {
+              "name": "page",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "minimum": 1,
+                "default": 1,
+                "title": "Page"
+              }
+            },
+            {
+              "name": "per_page",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "maximum": 100,
+                "minimum": 1,
+                "default": 50,
+                "title": "Per Page"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PaginatedResponse"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/settings": {
+        "get": {
+          "tags": [
+            "settings"
+          ],
+          "summary": "Get Settings",
+          "description": "Получение текущих настроек приложения",
+          "operationId": "get_settings_api_settings_get",
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/SettingsResponse"
+                  }
+                }
+              }
+            }
+          },
+          "security": [
+            {
+              "OAuth2PasswordBearer": []
+            }
+          ]
+        },
+        "put": {
+          "tags": [
+            "settings"
+          ],
+          "summary": "Update Settings",
+          "description": "Обновление настроек приложения",
+          "operationId": "update_settings_api_settings_put",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettingsSchema"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "additionalProperties": true,
+                    "type": "object",
+                    "title": "Response Update Settings Api Settings Put"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          },
+          "security": [
+            {
+              "OAuth2PasswordBearer": []
+            }
+          ]
+        }
+      },
+      "/api/settings/generate-secret": {
+        "post": {
+          "tags": [
+            "settings"
+          ],
+          "summary": "Generate Secret Key",
+          "description": "Генерация нового секретного ключа",
+          "operationId": "generate_secret_key_api_settings_generate_secret_post",
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "additionalProperties": true,
+                    "type": "object",
+                    "title": "Response Generate Secret Key Api Settings Generate Secret Post"
+                  }
+                }
+              }
+            }
+          },
+          "security": [
+            {
+              "OAuth2PasswordBearer": []
+            }
+          ]
+        }
+      },
+      "/health": {
+        "get": {
+          "tags": [
+            "health"
+          ],
+          "summary": "Health Check",
+          "description": "Проверка работоспособности приложения и его компонентов",
+          "operationId": "health_check_health_get",
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "additionalProperties": true,
+                    "type": "object",
+                    "title": "Response Health Check Health Get"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/status": {
+        "get": {
+          "tags": [
+            "status"
+          ],
+          "summary": "Check Status",
+          "description": "Проверка статуса системы",
+          "operationId": "check_status_api_status_get",
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "additionalProperties": true,
+                    "type": "object",
+                    "title": "Response Check Status Api Status Get"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "Body_login_access_token_api_auth_login_post": {
+          "properties": {
+            "grant_type": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^password$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Grant Type"
+            },
+            "username": {
+              "type": "string",
+              "title": "Username"
+            },
+            "password": {
+              "type": "string",
+              "title": "Password"
+            },
+            "scope": {
+              "type": "string",
+              "title": "Scope",
+              "default": ""
+            },
+            "client_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Client Id"
+            },
+            "client_secret": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Client Secret"
+            }
+          },
+          "type": "object",
+          "required": [
+            "username",
+            "password"
+          ],
+          "title": "Body_login_access_token_api_auth_login_post"
+        },
+        "DiscountUpdate": {
+          "properties": {
+            "sku": {
+              "type": "string",
+              "title": "Sku"
+            },
+            "discount": {
+              "type": "number",
+              "maximum": 100.0,
+              "minimum": 0.0,
+              "title": "Discount"
+            }
+          },
+          "type": "object",
+          "required": [
+            "sku",
+            "discount"
+          ],
+          "title": "DiscountUpdate"
+        },
+        "DiscountUpdateBatchResponse": {
+          "properties": {
+            "status": {
+              "type": "string",
+              "title": "Status"
+            },
+            "updated": {
+              "items": {
+                "$ref": "#/components/schemas/DiscountUpdateResponse"
+              },
+              "type": "array",
+              "title": "Updated"
+            },
+            "errors": {
+              "items": {
+                "$ref": "#/components/schemas/DiscountUpdateError"
+              },
+              "type": "array",
+              "title": "Errors"
+            }
+          },
+          "type": "object",
+          "required": [
+            "status",
+            "updated",
+            "errors"
+          ],
+          "title": "DiscountUpdateBatchResponse"
+        },
+        "DiscountUpdateError": {
+          "properties": {
+            "sku": {
+              "type": "string",
+              "title": "Sku"
+            },
+            "error": {
+              "type": "string",
+              "title": "Error"
+            }
+          },
+          "type": "object",
+          "required": [
+            "sku",
+            "error"
+          ],
+          "title": "DiscountUpdateError"
+        },
+        "DiscountUpdateResponse": {
+          "properties": {
+            "sku": {
+              "type": "string",
+              "title": "Sku"
+            },
+            "discount": {
+              "type": "number",
+              "title": "Discount"
+            },
+            "old_price": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Old Price"
+            },
+            "message": {
+              "type": "string",
+              "title": "Message"
+            }
+          },
+          "type": "object",
+          "required": [
+            "sku",
+            "discount",
+            "message"
+          ],
+          "title": "DiscountUpdateResponse"
+        },
+        "HTTPValidationError": {
+          "properties": {
+            "detail": {
+              "items": {
+                "$ref": "#/components/schemas/ValidationError"
+              },
+              "type": "array",
+              "title": "Detail"
+            }
+          },
+          "type": "object",
+          "title": "HTTPValidationError"
+        },
+        "MrpcUpdate": {
+          "properties": {
+            "sku": {
+              "type": "string",
+              "title": "Sku"
+            },
+            "mrpc": {
+              "type": "number",
+              "exclusiveMinimum": 0.0,
+              "title": "Mrpc"
+            }
+          },
+          "type": "object",
+          "required": [
+            "sku",
+            "mrpc"
+          ],
+          "title": "MrpcUpdate"
+        },
+        "MrpcUpdateBatchResponse": {
+          "properties": {
+            "status": {
+              "type": "string",
+              "title": "Status"
+            },
+            "updated": {
+              "items": {
+                "$ref": "#/components/schemas/MrpcUpdateResponse"
+              },
+              "type": "array",
+              "title": "Updated"
+            },
+            "errors": {
+              "items": {
+                "$ref": "#/components/schemas/MrpcUpdateError"
+              },
+              "type": "array",
+              "title": "Errors"
+            }
+          },
+          "type": "object",
+          "required": [
+            "status",
+            "updated",
+            "errors"
+          ],
+          "title": "MrpcUpdateBatchResponse"
+        },
+        "MrpcUpdateError": {
+          "properties": {
+            "sku": {
+              "type": "string",
+              "title": "Sku"
+            },
+            "error": {
+              "type": "string",
+              "title": "Error"
+            }
+          },
+          "type": "object",
+          "required": [
+            "sku",
+            "error"
+          ],
+          "title": "MrpcUpdateError"
+        },
+        "MrpcUpdateResponse": {
+          "properties": {
+            "sku": {
+              "type": "string",
+              "title": "Sku"
+            },
+            "mrpc": {
+              "type": "number",
+              "title": "Mrpc"
+            },
+            "message": {
+              "type": "string",
+              "title": "Message"
+            }
+          },
+          "type": "object",
+          "required": [
+            "sku",
+            "mrpc",
+            "message"
+          ],
+          "title": "MrpcUpdateResponse"
+        },
+        "PaginatedResponse": {
+          "properties": {
+            "items": {
+              "items": {},
+              "type": "array",
+              "title": "Items"
+            },
+            "total": {
+              "type": "integer",
+              "title": "Total"
+            },
+            "page": {
+              "type": "integer",
+              "title": "Page"
+            },
+            "pages": {
+              "type": "integer",
+              "title": "Pages"
+            }
+          },
+          "type": "object",
+          "required": [
+            "items",
+            "total",
+            "page",
+            "pages"
+          ],
+          "title": "PaginatedResponse"
+        },
+        "ProductUpdate": {
+          "properties": {
+            "mrpc": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Mrpc"
+            },
+            "active": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Active"
+            },
+            "discount": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "maximum": 100.0,
+                  "minimum": 0.0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Discount"
+            }
+          },
+          "type": "object",
+          "title": "ProductUpdate"
+        },
+        "SettingsResponse": {
+          "properties": {
+            "monitoring_interval": {
+              "type": "integer",
+              "title": "Monitoring Interval"
+            },
+            "price_update_interval": {
+              "type": "integer",
+              "title": "Price Update Interval"
+            },
+            "ozon_client_id": {
+              "type": "string",
+              "title": "Ozon Client Id"
+            },
+            "ozon_api_key": {
+              "type": "string",
+              "title": "Ozon Api Key"
+            },
+            "front_price_api_url": {
+              "type": "string",
+              "title": "Front Price Api Url"
+            },
+            "secret_key": {
+              "type": "string",
+              "title": "Secret Key"
+            },
+            "last_update": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Last Update"
+            },
+            "next_update": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Next Update"
+            }
+          },
+          "type": "object",
+          "required": [
+            "monitoring_interval",
+            "price_update_interval",
+            "ozon_client_id",
+            "ozon_api_key",
+            "front_price_api_url",
+            "secret_key"
+          ],
+          "title": "SettingsResponse"
+        },
+        "SettingsSchema": {
+          "properties": {
+            "monitoring_interval": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Monitoring Interval"
+            },
+            "price_update_interval": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Price Update Interval"
+            },
+            "ozon_client_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Ozon Client Id"
+            },
+            "ozon_api_key": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Ozon Api Key"
+            },
+            "front_price_api_url": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Front Price Api Url"
+            }
+          },
+          "type": "object",
+          "title": "SettingsSchema"
+        },
+        "Token": {
+          "properties": {
+            "access_token": {
+              "type": "string",
+              "title": "Access Token"
+            },
+            "token_type": {
+              "type": "string",
+              "title": "Token Type"
+            }
+          },
+          "type": "object",
+          "required": [
+            "access_token",
+            "token_type"
+          ],
+          "title": "Token"
+        },
+        "UpdatePricesRequest": {
+          "properties": {
+            "product_ids": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Product Ids"
+            }
+          },
+          "type": "object",
+          "title": "UpdatePricesRequest"
+        },
+        "UpdatePricesResponse": {
+          "properties": {
+            "status": {
+              "type": "string",
+              "title": "Status"
+            },
+            "updated": {
+              "type": "integer",
+              "title": "Updated"
+            },
+            "errors": {
+              "items": {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              "type": "array",
+              "title": "Errors"
+            }
+          },
+          "type": "object",
+          "required": [
+            "status",
+            "updated",
+            "errors"
+          ],
+          "title": "UpdatePricesResponse"
+        },
+        "User": {
+          "properties": {
+            "username": {
+              "type": "string",
+              "title": "Username"
+            },
+            "email": {
+              "type": "string",
+              "title": "Email"
+            },
+            "is_active": {
+              "type": "boolean",
+              "title": "Is Active",
+              "default": true
+            },
+            "is_superuser": {
+              "type": "boolean",
+              "title": "Is Superuser",
+              "default": false
+            },
+            "id": {
+              "type": "integer",
+              "title": "Id"
+            },
+            "created_at": {
+              "type": "string",
+              "format": "date-time",
+              "title": "Created At"
+            },
+            "updated_at": {
+              "type": "string",
+              "format": "date-time",
+              "title": "Updated At"
+            }
+          },
+          "type": "object",
+          "required": [
+            "username",
+            "email",
+            "id",
+            "created_at",
+            "updated_at"
+          ],
+          "title": "User"
+        },
+        "UserCreate": {
+          "properties": {
+            "username": {
+              "type": "string",
+              "title": "Username"
+            },
+            "email": {
+              "type": "string",
+              "title": "Email"
+            },
+            "is_active": {
+              "type": "boolean",
+              "title": "Is Active",
+              "default": true
+            },
+            "is_superuser": {
+              "type": "boolean",
+              "title": "Is Superuser",
+              "default": false
+            },
+            "password": {
+              "type": "string",
+              "title": "Password"
+            }
+          },
+          "type": "object",
+          "required": [
+            "username",
+            "email",
+            "password"
+          ],
+          "title": "UserCreate"
+        },
+        "ValidationError": {
+          "properties": {
+            "loc": {
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "integer"
+                  }
+                ]
+              },
+              "type": "array",
+              "title": "Location"
+            },
+            "msg": {
+              "type": "string",
+              "title": "Message"
+            },
+            "type": {
+              "type": "string",
+              "title": "Error Type"
+            }
+          },
+          "type": "object",
+          "required": [
+            "loc",
+            "msg",
+            "type"
+          ],
+          "title": "ValidationError"
+        }
+      },
+      "securitySchemes": {
+        "OAuth2PasswordBearer": {
+          "type": "oauth2",
+          "flows": {
+            "password": {
+              "scopes": {},
+              "tokenUrl": "/api/auth/login"
+            }
+          }
+        }
+      }
+    }
+  }

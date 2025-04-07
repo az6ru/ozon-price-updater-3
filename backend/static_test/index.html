@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Auth via Backend</title>
+    <script>
+        // Функция для авторизации
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            const params = new URLSearchParams();
+            params.append('username', username);
+            params.append('password', password);
+            
+            console.log('Sending login request to: /api/auth/login');
+            
+            fetch('/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: params
+            })
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Response data:', data);
+                document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+                if (data.access_token) {
+                    localStorage.setItem('token', data.access_token);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('result').textContent = 'Error: ' + error.message;
+            });
+        }
+        
+        // Функция для получения информации о пользователе
+        function getUser() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                document.getElementById('user').textContent = 'No token found. Please login first.';
+                return;
+            }
+            
+            fetch('/api/users/me', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('user').textContent = JSON.stringify(data, null, 2);
+            })
+            .catch(error => {
+                document.getElementById('user').textContent = 'Error: ' + error.message;
+            });
+        }
+    </script>
+</head>
+<body>
+    <h1>Test Authentication (Backend)</h1>
+    
+    <div>
+        <h2>Login</h2>
+        <div>
+            <label for="username">Username:</label>
+            <input type="text" id="username" value="admin" />
+        </div>
+        <div>
+            <label for="password">Password:</label>
+            <input type="password" id="password" value="admin" />
+        </div>
+        <div>
+            <button onclick="login()">Login</button>
+        </div>
+        <div>
+            <h3>Result:</h3>
+            <pre id="result"></pre>
+        </div>
+    </div>
+    
+    <div>
+        <h2>Get User Info</h2>
+        <div>
+            <button onclick="getUser()">Get User</button>
+        </div>
+        <div>
+            <h3>User Info:</h3>
+            <pre id="user"></pre>
+        </div>
+    </div>
+</body>
+</html> 

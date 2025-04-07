@@ -1,0 +1,1891 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Ozon Price Updater",
+        "description": "Система автоматизации мониторинга и корректировки цен на маркетплейсе Ozon",
+        "version": "3.0.0"
+    },
+    "paths": {
+        "/login": {
+            "get": {
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Login Page",
+                "description": "Отображает страницу авторизации.",
+                "operationId": "login_page_login_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Login",
+                "description": "Обрабатывает форму авторизации.",
+                "operationId": "login_login_post",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/logout": {
+            "get": {
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Logout",
+                "description": "Выход из системы.",
+                "operationId": "logout_logout_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/status": {
+            "get": {
+                "tags": [
+                    "api"
+                ],
+                "summary": "Check System Status",
+                "description": "Проверяет статус системы.",
+                "operationId": "check_system_status_api_status_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SystemStatus"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/products/fetch": {
+            "post": {
+                "tags": [
+                    "api"
+                ],
+                "summary": "Fetch Products",
+                "description": "Запускает задачу получения и обновления данных о товарах в фоновом режиме.",
+                "operationId": "fetch_products_api_products_fetch_post",
+                "responses": {
+                    "202": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/tasks/{task_id}": {
+            "get": {
+                "tags": [
+                    "api"
+                ],
+                "summary": "Get Task Status",
+                "description": "Получает статус задачи по её ID (заглушка, т.к. APScheduler не использует идентификаторы задач).",
+                "operationId": "get_task_status_api_tasks__task_id__get",
+                "parameters": [
+                    {
+                        "name": "task_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Task Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/products": {
+            "get": {
+                "tags": [
+                    "api"
+                ],
+                "summary": "Get Products",
+                "description": "Получение списка всех товаров с возможностью фильтрации и сортировки.",
+                "operationId": "get_products_api_products_get",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "description": "Поиск по имени товара",
+                            "default": "",
+                            "title": "Search"
+                        },
+                        "description": "Поиск по имени товара"
+                    },
+                    {
+                        "name": "only_active",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "description": "Только активные товары",
+                            "default": false,
+                            "title": "Only Active"
+                        },
+                        "description": "Только активные товары"
+                    },
+                    {
+                        "name": "sort_by",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "description": "Поле для сортировки",
+                            "default": "id",
+                            "title": "Sort By"
+                        },
+                        "description": "Поле для сортировки"
+                    },
+                    {
+                        "name": "sort_order",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "description": "Порядок сортировки (asc/desc)",
+                            "default": "asc",
+                            "title": "Sort Order"
+                        },
+                        "description": "Порядок сортировки (asc/desc)"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ProductSchema"
+                                    },
+                                    "title": "Response Get Products Api Products Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/products/{product_id}": {
+            "get": {
+                "tags": [
+                    "api"
+                ],
+                "summary": "Get Product",
+                "description": "Получение информации о конкретном товаре по ID.",
+                "operationId": "get_product_api_products__product_id__get",
+                "parameters": [
+                    {
+                        "name": "product_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "title": "Product Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProductSchema"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "api"
+                ],
+                "summary": "Update Product",
+                "description": "Обновление информации о товаре, включая МРЦ и статус активности.",
+                "operationId": "update_product_api_products__product_id__put",
+                "parameters": [
+                    {
+                        "name": "product_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "title": "Product Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ProductUpdateSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProductSchema"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/products/by-sku/{sku}": {
+            "get": {
+                "tags": [
+                    "api"
+                ],
+                "summary": "Get Product By Sku",
+                "description": "Получает информацию о товаре по его SKU.",
+                "operationId": "get_product_by_sku_api_products_by_sku__sku__get",
+                "parameters": [
+                    {
+                        "name": "sku",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Sku"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SkuMonitoringResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/monitor/{product_id}": {
+            "post": {
+                "tags": [
+                    "api"
+                ],
+                "summary": "Run Monitor",
+                "description": "Запуск задачи мониторинга для конкретного товара.",
+                "operationId": "run_monitor_api_monitor__product_id__post",
+                "parameters": [
+                    {
+                        "name": "product_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "title": "Product Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/update-all-products": {
+            "post": {
+                "tags": [
+                    "api"
+                ],
+                "summary": "Update All Products",
+                "description": "Запуск задачи обновления всех товаров.",
+                "operationId": "update_all_products_api_update_all_products_post",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/monitor-all": {
+            "post": {
+                "tags": [
+                    "api"
+                ],
+                "summary": "Run Monitor All",
+                "description": "Запуск задачи мониторинга для всех активных товаров.",
+                "operationId": "run_monitor_all_api_monitor_all_post",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/history": {
+            "get": {
+                "tags": [
+                    "api"
+                ],
+                "summary": "Get History",
+                "description": "Получение истории изменения цен с возможностью фильтрации.",
+                "operationId": "get_history_api_history_get",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "description": "Поиск по имени товара",
+                            "default": "",
+                            "title": "Search"
+                        },
+                        "description": "Поиск по имени товара"
+                    },
+                    {
+                        "name": "only_changes",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "description": "Только изменения цен",
+                            "default": false,
+                            "title": "Only Changes"
+                        },
+                        "description": "Только изменения цен"
+                    },
+                    {
+                        "name": "price_filter",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "description": "Фильтр по типу цены (all/increase/decrease)",
+                            "default": "all",
+                            "title": "Price Filter"
+                        },
+                        "description": "Фильтр по типу цены (all/increase/decrease)"
+                    },
+                    {
+                        "name": "period",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "description": "Период (all/day/week/month)",
+                            "default": "all",
+                            "title": "Period"
+                        },
+                        "description": "Период (all/day/week/month)"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/HistorySchema"
+                                    },
+                                    "title": "Response Get History Api History Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/products/{product_id}/price": {
+            "post": {
+                "tags": [
+                    "api"
+                ],
+                "summary": "Update Product Price",
+                "description": "Обновляет цену товара через API Ozon.",
+                "operationId": "update_product_price_api_products__product_id__price_post",
+                "parameters": [
+                    {
+                        "name": "product_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "title": "Product Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PriceUpdateRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/reset-database": {
+            "post": {
+                "tags": [
+                    "api"
+                ],
+                "summary": "Reset Database",
+                "description": "Очищает базу данных.",
+                "operationId": "reset_database_api_reset_database_post",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/logs/download": {
+            "get": {
+                "tags": [
+                    "api"
+                ],
+                "summary": "Download Logs",
+                "description": "Скачать файл логов.",
+                "operationId": "download_logs_api_logs_download_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/logs/clear": {
+            "post": {
+                "tags": [
+                    "api"
+                ],
+                "summary": "Clear Logs",
+                "description": "Очистить файл логов.",
+                "operationId": "clear_logs_api_logs_clear_post",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/api-logs": {
+            "get": {
+                "tags": [
+                    "api"
+                ],
+                "summary": "Get Api Logs",
+                "description": "Получение списка логов API.",
+                "operationId": "get_api_logs_api_api_logs_get",
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "description": "Количество последних логов",
+                            "default": 50,
+                            "title": "Limit"
+                        },
+                        "description": "Количество последних логов"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ApiLogSchema"
+                                    },
+                                    "title": "Response Get Api Logs Api Api Logs Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/update-info": {
+            "get": {
+                "tags": [
+                    "api"
+                ],
+                "summary": "Get Update Info",
+                "description": "Получение информации о планировщике задач и следующем обновлении.",
+                "operationId": "get_update_info_api_update_info_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SchedulerStatusSchema"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/settings": {
+            "post": {
+                "tags": [
+                    "api"
+                ],
+                "summary": "Save Settings",
+                "description": "Сохраняет настройки приложения.",
+                "operationId": "save_settings_api_settings_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "title": "Settings Data"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/update-interval": {
+            "post": {
+                "tags": [
+                    "api"
+                ],
+                "summary": "Update Interval",
+                "description": "Обновление интервала мониторинга.",
+                "operationId": "update_interval_api_update_interval_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/MonitoringIntervalSchema"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/": {
+            "get": {
+                "summary": "Home",
+                "description": "Главная страница с таблицей товаров.",
+                "operationId": "home__get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "HTTPBasic": []
+                    }
+                ]
+            }
+        },
+        "/settings": {
+            "get": {
+                "summary": "Settings Page",
+                "description": "Страница настроек.",
+                "operationId": "settings_page_settings_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "HTTPBasic": []
+                    }
+                ]
+            }
+        },
+        "/status": {
+            "get": {
+                "summary": "Status Page",
+                "description": "Страница статусов системы.",
+                "operationId": "status_page_status_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "HTTPBasic": []
+                    }
+                ]
+            }
+        },
+        "/history/{product_id}": {
+            "get": {
+                "summary": "History",
+                "description": "Страница истории изменений цен для конкретного товара.",
+                "operationId": "history_history__product_id__get",
+                "security": [
+                    {
+                        "HTTPBasic": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "product_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "title": "Product Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/history": {
+            "get": {
+                "summary": "Full History",
+                "description": "Страница истории изменений цен для всех товаров.",
+                "operationId": "full_history_history_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "HTTPBasic": []
+                    }
+                ]
+            }
+        },
+        "/logs": {
+            "get": {
+                "summary": "Logs Page",
+                "description": "Страница просмотра логов системы.",
+                "operationId": "logs_page_logs_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "HTTPBasic": []
+                    }
+                ]
+            }
+        },
+        "/api-logs": {
+            "get": {
+                "summary": "Api Logs Page",
+                "description": "Страница просмотра журнала API запросов.",
+                "operationId": "api_logs_page_api_logs_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "HTTPBasic": []
+                    }
+                ]
+            }
+        },
+        "/product/{product_id}": {
+            "get": {
+                "summary": "Product Detail",
+                "description": "Страница детальной информации о товаре.",
+                "operationId": "product_detail_product__product_id__get",
+                "security": [{"HTTPBasic": []}],
+                "parameters": [
+                    {
+                        "name": "product_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "title": "Product Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/products/set-discount": {
+            "post": {
+                "tags": ["api"],
+                "summary": "Set Discount",
+                "description": "Устанавливает процент скидки для товаров. Скидка реализуется через изменение old_price при фиксированной конечной цене (МРЦ).",
+                "operationId": "set_discount_api_products_set_discount_post",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DiscountUpdateRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DiscountUpdateResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/products/front-prices": {
+            "get": {
+                "tags": ["api"],
+                "summary": "Get Front Prices",
+                "description": "Получает текущие цены товаров с витрины Ozon.",
+                "operationId": "get_front_prices_api_products_front_prices_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/FrontPriceResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/products/price-verification": {
+            "get": {
+                "tags": ["api"],
+                "summary": "Get Price Verification Status",
+                "description": "Получает статус верификации изменений цен товаров.",
+                "operationId": "get_price_verification_api_products_price_verification_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/PriceVerificationResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "ApiLogSchema": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "title": "Id"
+                    },
+                    "endpoint": {
+                        "type": "string",
+                        "title": "Endpoint"
+                    },
+                    "method": {
+                        "type": "string",
+                        "title": "Method"
+                    },
+                    "timestamp": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Timestamp"
+                    },
+                    "response_time": {
+                        "type": "number",
+                        "title": "Response Time"
+                    },
+                    "success": {
+                        "type": "boolean",
+                        "title": "Success"
+                    },
+                    "error_message": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Error Message"
+                    },
+                    "products_count": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Products Count"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "endpoint",
+                    "method",
+                    "timestamp",
+                    "response_time",
+                    "success"
+                ],
+                "title": "ApiLogSchema",
+                "description": "Схема для логов API"
+            },
+            "HTTPValidationError": {
+                "properties": {
+                    "detail": {
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationError"
+                        },
+                        "type": "array",
+                        "title": "Detail"
+                    }
+                },
+                "type": "object",
+                "title": "HTTPValidationError"
+            },
+            "HistorySchema": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "title": "Id"
+                    },
+                    "product_id": {
+                        "type": "integer",
+                        "title": "Product Id"
+                    },
+                    "sku": {
+                        "type": "string",
+                        "title": "Sku"
+                    },
+                    "product_name": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Product Name"
+                    },
+                    "old_price": {
+                        "type": "number",
+                        "title": "Old Price"
+                    },
+                    "new_price": {
+                        "type": "number",
+                        "title": "New Price"
+                    },
+                    "no_changes": {
+                        "type": "boolean",
+                        "title": "No Changes",
+                        "default": false
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "product_id",
+                    "sku",
+                    "old_price",
+                    "new_price",
+                    "created_at"
+                ],
+                "title": "HistorySchema",
+                "description": "Схема для истории изменения цен"
+            },
+            "MonitoringIntervalSchema": {
+                "properties": {
+                    "minutes": {
+                        "type": "integer",
+                        "exclusiveMinimum": 0.0,
+                        "title": "Minutes",
+                        "description": "Интервал мониторинга в минутах"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "minutes"
+                ],
+                "title": "MonitoringIntervalSchema",
+                "description": "Схема для обновления интервала мониторинга"
+            },
+            "PriceUpdateRequest": {
+                "properties": {
+                    "product_id": {
+                        "type": "integer",
+                        "title": "Product Id"
+                    },
+                    "price": {
+                        "type": "number",
+                        "title": "Price"
+                    },
+                    "old_price": {
+                        "anyOf": [
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Old Price"
+                    },
+                    "min_price": {
+                        "anyOf": [
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Min Price"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "product_id",
+                    "price"
+                ],
+                "title": "PriceUpdateRequest",
+                "description": "Схема для запроса на обновление цены."
+            },
+            "ProductSchema": {
+                "properties": {
+                    "product_id": {
+                        "type": "integer",
+                        "title": "Product Id"
+                    },
+                    "sku": {
+                        "type": "string",
+                        "title": "Sku"
+                    },
+                    "name": {
+                        "type": "string",
+                        "title": "Name"
+                    },
+                    "price": {
+                        "anyOf": [
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Price"
+                    },
+                    "old_price": {
+                        "anyOf": [
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Old Price"
+                    },
+                    "mrpc": {
+                        "anyOf": [
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Mrpc"
+                    },
+                    "active": {
+                        "type": "boolean",
+                        "title": "Active",
+                        "default": false
+                    },
+                    "available": {
+                        "type": "boolean",
+                        "title": "Available",
+                        "default": false
+                    },
+                    "created_at": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Created At"
+                    },
+                    "update_timestamp": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Update Timestamp"
+                    },
+                    "mrpc_update_time": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Mrpc Update Time"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "product_id",
+                    "sku",
+                    "name"
+                ],
+                "title": "ProductSchema",
+                "description": "Схема для представления товаров"
+            },
+            "ProductUpdateSchema": {
+                "properties": {
+                    "name": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Name"
+                    },
+                    "mrpc": {
+                        "anyOf": [
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Mrpc"
+                    },
+                    "active": {
+                        "anyOf": [
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Active"
+                    },
+                    "available": {
+                        "anyOf": [
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Available"
+                    }
+                },
+                "type": "object",
+                "title": "ProductUpdateSchema",
+                "description": "Схема для обновления товаров"
+            },
+            "SchedulerStatusSchema": {
+                "properties": {
+                    "status": {
+                        "type": "string",
+                        "title": "Status"
+                    },
+                    "running": {
+                        "type": "boolean",
+                        "title": "Running"
+                    },
+                    "monitoring_interval": {
+                        "type": "integer",
+                        "title": "Monitoring Interval"
+                    },
+                    "last_update": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Last Update"
+                    },
+                    "next_monitor_update": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Next Monitor Update"
+                    },
+                    "next_full_update": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Next Full Update"
+                    },
+                    "current_time": {
+                        "type": "string",
+                        "title": "Current Time"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "status",
+                    "running",
+                    "monitoring_interval",
+                    "current_time"
+                ],
+                "title": "SchedulerStatusSchema",
+                "description": "Схема для статуса планировщика"
+            },
+            "SkuMonitoringResponse": {
+                "properties": {
+                    "product_id": {
+                        "type": "integer",
+                        "title": "Product Id"
+                    },
+                    "sku": {
+                        "type": "string",
+                        "title": "Sku"
+                    },
+                    "name": {
+                        "type": "string",
+                        "title": "Name"
+                    },
+                    "product_url": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Product Url"
+                    },
+                    "marketing_price": {
+                        "anyOf": [
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Marketing Price"
+                    },
+                    "min_price": {
+                        "anyOf": [
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Min Price"
+                    },
+                    "old_price": {
+                        "anyOf": [
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Old Price"
+                    },
+                    "price": {
+                        "anyOf": [
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Price"
+                    },
+                    "front_price": {
+                        "anyOf": [
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Front Price"
+                    },
+                    "mrpc": {
+                        "anyOf": [
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Mrpc"
+                    },
+                    "active": {
+                        "type": "boolean",
+                        "title": "Active",
+                        "default": false
+                    },
+                    "available": {
+                        "type": "boolean",
+                        "title": "Available",
+                        "default": true
+                    },
+                    "id": {
+                        "type": "integer",
+                        "title": "Id"
+                    },
+                    "front_price_timestamp": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Front Price Timestamp"
+                    },
+                    "update_timestamp": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Update Timestamp"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "product_id",
+                    "sku",
+                    "name",
+                    "id",
+                    "front_price_timestamp",
+                    "update_timestamp"
+                ],
+                "title": "SkuMonitoringResponse",
+                "description": "Схема для ответа с данными о товаре."
+            },
+            "SystemStatus": {
+                "properties": {
+                    "celery_status": {
+                        "type": "boolean",
+                        "title": "Celery Status",
+                        "default": false
+                    },
+                    "ozon_api_status": {
+                        "type": "boolean",
+                        "title": "Ozon Api Status",
+                        "default": false
+                    },
+                    "front_price_api_status": {
+                        "type": "boolean",
+                        "title": "Front Price Api Status",
+                        "default": false
+                    },
+                    "database_status": {
+                        "type": "boolean",
+                        "title": "Database Status",
+                        "default": false
+                    },
+                    "last_update": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Last Update"
+                    },
+                    "next_update": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Next Update"
+                    },
+                    "timestamp": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Timestamp"
+                    }
+                },
+                "additionalProperties": true,
+                "type": "object",
+                "title": "SystemStatus",
+                "description": "Схема для статуса системы."
+            },
+            "ValidationError": {
+                "properties": {
+                    "loc": {
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "type": "array",
+                        "title": "Location"
+                    },
+                    "msg": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "type": {
+                        "type": "string",
+                        "title": "Error Type"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "loc",
+                    "msg",
+                    "type"
+                ],
+                "title": "ValidationError"
+            },
+            "DiscountUpdateRequest": {
+                "type": "object",
+                "required": ["items"],
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": ["sku", "discount"],
+                            "properties": {
+                                "sku": {
+                                    "type": "string",
+                                    "description": "SKU товара"
+                                },
+                                "discount": {
+                                    "type": "number",
+                                    "minimum": 0,
+                                    "maximum": 100,
+                                    "description": "Процент скидки от 0 до 100"
+                                }
+                            }
+                        }
+                    }
+                },
+                "title": "DiscountUpdateRequest",
+                "description": "Схема для обновления скидок товаров"
+            },
+            "DiscountUpdateResponse": {
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type": "string",
+                        "enum": ["success", "error"],
+                        "description": "Статус операции"
+                    },
+                    "updated": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "sku": {
+                                    "type": "string",
+                                    "description": "SKU товара"
+                                },
+                                "discount": {
+                                    "type": "number",
+                                    "description": "Установленный процент скидки"
+                                },
+                                "old_price": {
+                                    "type": "number",
+                                    "description": "Рассчитанная старая цена для отображения скидки"
+                                },
+                                "message": {
+                                    "type": "string",
+                                    "description": "Информационное сообщение"
+                                }
+                            }
+                        }
+                    },
+                    "errors": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "sku": {
+                                    "type": "string",
+                                    "description": "SKU товара"
+                                },
+                                "error": {
+                                    "type": "string",
+                                    "description": "Описание ошибки"
+                                }
+                            }
+                        }
+                    }
+                },
+                "title": "DiscountUpdateResponse",
+                "description": "Схема ответа на обновление скидок"
+            },
+            "FrontPriceResponse": {
+                "type": "object",
+                "required": ["sku", "front_price", "timestamp"],
+                "properties": {
+                    "sku": {
+                        "type": "string",
+                        "description": "SKU товара"
+                    },
+                    "front_price": {
+                        "type": "number",
+                        "description": "Цена на витрине"
+                    },
+                    "discount_percent": {
+                        "type": "number",
+                        "description": "Текущий процент скидки на витрине"
+                    },
+                    "original_price": {
+                        "type": "number",
+                        "description": "Оригинальная цена на витрине"
+                    },
+                    "timestamp": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Время получения цены"
+                    }
+                },
+                "title": "FrontPriceResponse",
+                "description": "Схема для цен с витрины"
+            },
+            "PriceVerificationResponse": {
+                "type": "object",
+                "required": ["sku", "status", "verification_timestamp"],
+                "properties": {
+                    "sku": {
+                        "type": "string",
+                        "description": "SKU товара"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": ["verified", "pending", "failed"],
+                        "description": "Статус верификации изменения цены"
+                    },
+                    "expected_price": {
+                        "type": "number",
+                        "description": "Ожидаемая цена"
+                    },
+                    "actual_price": {
+                        "type": "number",
+                        "description": "Фактическая цена на витрине"
+                    },
+                    "verification_timestamp": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Время последней проверки"
+                    },
+                    "retry_count": {
+                        "type": "integer",
+                        "description": "Количество попыток верификации"
+                    },
+                    "error_message": {
+                        "type": "string",
+                        "description": "Сообщение об ошибке при неудачной верификации"
+                    }
+                },
+                "title": "PriceVerificationResponse",
+                "description": "Схема для статуса верификации цен"
+            }
+        },
+        "securitySchemes": {
+            "HTTPBasic": {
+                "type": "http",
+                "scheme": "basic"
+            }
+        }
+    }
+}
